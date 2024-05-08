@@ -29,7 +29,7 @@ const RightContainer = styled.div`
   justify-content: center;
   align-items: center;
   padding: 0 20px;
-  gap: 10px;
+  margin-bottom: 30px;
 `;
 
 const Title = styled.h1`
@@ -39,7 +39,6 @@ const Title = styled.h1`
 const Label = styled.label`
   color: #98A2B3;
   font-size: 14px;
-  line-height: 130%;
 `;
 
 const Input = styled.input`
@@ -47,14 +46,20 @@ display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: flex-start;
-padding: 12px 20px;
-gap: 10px;
+padding: 6px 15px;
+margin: 8px 0;
 
 width: 476px;
-height: 44px;
+height: 30px;
 
 background: #242424;
 border-radius: 10px;
+border: none;
+color: #FFFFFF;
+
+&::placeholder {
+  color: #98A2B3; 
+}
 `;
 
 const Select = styled.select`
@@ -62,81 +67,118 @@ display: flex;
 flex-direction: column;
 justify-content: center;
 align-items: flex-start;
-padding: 12px 20px;
-gap: 10px;
+margin-top: 10px;
 
-width: 476px;
-height: 44px;
+width: 506px;
+height: 43px;
 
 background: #242424;
 border-radius: 10px;
+border: none;
+
+& option:not([value=""]) {
+  color: #FFFFFF;
+}
 `;
 
 const Button = styled.button`
-  wid
+background: #1570EF;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 12px 20px;
+align-items: center;
+color: #FFFFFF;
+margin-top: 20px;
+font-size: 14px;
+
+width: 505px;
+height: 40px;
+
+border-radius: 10px;
+border: none;
+`;
+
+const Form = styled.form`
+
 `;
 
 const UserCreate: React.FC = () => {
-    const [data, setData] = useState<UserCredentials>({
-        cpf: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        triage_of_type: "",
-        password: "",
-        password2: "",
-    });
+  const [data, setData] = useState<UserCredentials>({
+    cpf: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    triage_of_type: "",
+    password: "",
+    password2: "",
+  });
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-            const response = await postData(data);
-            alert("Usuário criado com sucesso!");
-            console.log(response.data);
-        } catch (error) {
-            console.error('Erro ao criar usuário.', error);
-        }
-    };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const response = await postData(data);
+      alert("Usuário criado com sucesso!");
+      console.log(response.data);
+    } catch (error) {
+      console.error('Erro ao criar usuário.', error);
+    }
+  };
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = event.target;
-        setData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    };
+  const handleChangeCPF = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const formattedValue = value
+      .replace(/\D/g, "") // Remove todos os caracteres que não são dígitos
+      .replace(/(\d{3})(\d)/, "$1.$2") // Adiciona um ponto após os três primeiros dígitos
+      .replace(/(\d{3})(\d)/, "$1.$2") // Adiciona outro ponto após os três próximos dígitos
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Adiciona o traço antes dos últimos dois dígitos
+    setData((prevData) => ({
+      ...prevData,
+      [name]: formattedValue,
+    }));
+  };
 
-    return (
-        <div>
-            <div>
-                <Image src="../../Frame 135.png" alt="Imagem" />
-            </div>
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <label>CPF:</label>
-                    <input type="text" name="cpf" value={data.cpf} onChange={handleChange} />
-                    <label>Nome:</label>
-                    <input type="text" name="first_name" value={data.first_name} onChange={handleChange} />
-                    <label>Sobrenome:</label>
-                    <input type="text" name="last_name" value={data.last_name} onChange={handleChange} />
-                    <label>E-mail</label>
-                    <input type="email" name="email" value={data.email} onChange={handleChange} />
-                    <label>Tipo De Triagem:</label>
-                    <select name='type_of_triage' id="type_of_triage" value={data.triage_of_type} onChange={handleChange}>
-                        <option value="" ></option>
-                        <option value="Ceara">Ceará</option>
-                        <option value="SaoPaulo">São Paulo</option>
-                        <option value="RioDeJaneiro">Rio de Janeiro</option>
-                    </select>
-                    <label>Senha:</label>
-                    <input type="password" name="password" value={data.password} onChange={handleChange} />
-                    <label>Confirmar Senha:</label>
-                    <input type="password" name="password2" value={data.password2} onChange={handleChange} />
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-        </div>
-    );
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
+    setData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  return (
+    <Container>
+      <LeftContainer>
+        <Image src="../../Frame 135.png" alt="Imagem" />
+      </LeftContainer>
+      <RightContainer>
+        <Form onSubmit={handleSubmit}>
+          <Title>Cadastro</Title>
+          <Label>Nº do CPF*</Label>
+          <Input placeholder="000.000.000-00" type="text" name="cpf" maxLength={14} minLength={14} value={data.cpf} onChange={handleChangeCPF} />
+          <Label>Nome*</Label>
+          <Input type="text" name="first_name" value={data.first_name} onChange={handleChange} />
+          <Label>Sobrenome*</Label>
+          <Input type="text" name="last_name" value={data.last_name} onChange={handleChange} />
+          <Label>E-mail*</Label>
+          <Input placeholder="example@example.com" type="email" name="email" value={data.email} onChange={handleChange} />
+          <Label>Senha*</Label>
+          <Input type="password" name="password" value={data.password} onChange={handleChange} />
+          <Label>Confirmar Senha*</Label>
+          <Input type="password" name="password2" value={data.password2} onChange={handleChange} />
+          <Label>Tipo De Triagem*</Label>
+          <Select name='type_of_triage' id="type_of_triage" value={data.triage_of_type} onChange={handleChange}>
+            <option value="" ></option>
+            <option value="Ceara">Ceará</option>
+            <option value="SaoPaulo">São Paulo</option>
+            <option value="RioDeJaneiro">Rio de Janeiro</option>
+          </Select>
+          <Button type="submit">Cadastrar</Button>
+        </Form>
+      </RightContainer>
+    </Container>
+  );
 };
 
 export default dynamic(() => Promise.resolve(UserCreate), { ssr: false });
